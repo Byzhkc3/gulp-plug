@@ -13,12 +13,27 @@ var uglify = require('gulp-uglify');
 // 导入 gulp-rename 重命名
 var rename = require('gulp-rename');
 
+// 创建服务器
+gulp.task('connect', function() {
+    connect.server({
+        root: 'app',
+        port: 8080,
+        livereload: true
+    });
+});
+
+// 监听文件变化
+gulp.task('html', function() {
+    gulp.src('./app/*.html')
+        .pipe(connect.reload());
+});
+
 // 编译sass
-gulp.task('sass',function(){
-	return gulp.src('app/scss/style.scss')
-		.pipe(sass())
-		.pipe(gulp.dest('app/css'))
-		.pipe(connect.reload());
+gulp.task('sass', function() {
+    return gulp.src('app/scss/style.scss')
+        .pipe(sass())
+        .pipe(gulp.dest('app/css'))
+        .pipe(connect.reload());
 });
 
 
@@ -27,7 +42,8 @@ gulp.task('minicss',function(){
 	return gulp.src('app/css/*.css')
 		.pipe(rename({suffix:'.min'}))
 		.pipe(minifycss())
-		.pipe(gulp.dest('app/css'));
+		.pipe(gulp.dest('app/css'))
+		.pipe(connect.reload());
 });
 
 // 压缩js
@@ -37,32 +53,15 @@ gulp.task('minijs',function(){
 		.pipe(gulp.dest('app/js'))
 		.pipe(rename({suffix:'.min'}))
 		.pipe(uglify())
-		.pipe(gulp.dest('app/js'));
+		.pipe(gulp.dest('app/js'))
+		.pipe(connect.reload());
 });
 
-// 创建服务器
-gulp.task('connect',function(){
-	connect.server({
-		root:'app',
-		port:8082,
-		livereload:true
-	});
-});
 
-// 监听文件变化
-gulp.task('html',function(){
-	gulp.src('./app/*.html')
-	.pipe(connect.reload());
-});
-
-gulp.task('watch',function(){
-	gulp.watch(['./app/*.html'],['html']);
-	gulp.watch(['./app/scss/style.scss'],['sass']);
+gulp.task('watch', function() {
+    gulp.watch(['./app/*.html'], ['html']);
+    gulp.watch(['./app/scss/style.scss'], ['sass']);
 });
 
 // 设置默认命令
-gulp.task('default',['connect','watch','minicss','minijs']);
-
-
-
-
+gulp.task('default', ['connect', 'watch']);
